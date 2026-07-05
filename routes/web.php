@@ -14,6 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/notifications', \App\Livewire\NotificationHistory::class)->name('notifications.index');
     Route::get('pengaturan-pembayaran', \App\Livewire\Admin\PengaturanPembayaran::class)->name('pengaturan-pembayaran.index')->middleware('role:admin');
     Route::get('siswa', \App\Livewire\Siswa\Index::class)->name('siswa.index')->middleware('role:admin');
+    Route::get('alumni', \App\Livewire\Alumni\Index::class)->name('alumni.index')->middleware('role:admin');
     Route::get('guru', \App\Livewire\Guru\Index::class)->name('guru.index')->middleware('role:admin');
     Route::get('jurusan', \App\Livewire\Jurusan\Index::class)->name('jurusan.index')->middleware('role:admin');
     Route::get('kelas', \App\Livewire\Kelas\Index::class)->name('kelas.index')->middleware('role:admin');
