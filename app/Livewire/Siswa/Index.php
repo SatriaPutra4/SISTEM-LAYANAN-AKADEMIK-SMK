@@ -19,11 +19,49 @@ class Index extends Component
 
     public $search = '';
     public $file;
+    public $target_kelas_id;
     public $showImportModal = false;
     public $name, $email, $nis, $kelas_id, $jurusan_id, $jenis_kelamin, $no_hp, $alamat;
     public $siswa_id;
     public $selectedSiswa;
     public $isEdit = false;
+
+    // Fungsi Luluskan Angkatan
+    public function luluskanAngkatan($kelas_id)
+    {
+        Siswa::where('kelas_id', $kelas_id)
+             ->where('status', 'aktif')
+             ->update(['status' => 'lulus']);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'description' => "meluluskan seluruh siswa di kelas ID: {$kelas_id}",
+            'type' => 'success'
+        ]);
+
+        $this->dispatch('notify', message: 'Seluruh siswa di kelas tersebut berhasil diluluskan.', type: 'success');
+    }
+
+    // Fungsi Naikkan Kelas
+    public function naikkanKelas($kelas_asal_id, $kelas_tujuan_id)
+    {
+        if ($kelas_asal_id == $kelas_tujuan_id) {
+            $this->dispatch('notify', message: 'Kelas asal dan tujuan tidak boleh sama.', type: 'error');
+            return;
+        }
+
+        Siswa::where('kelas_id', $kelas_asal_id)
+             ->where('status', 'aktif')
+             ->update(['kelas_id' => $kelas_tujuan_id]);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'description' => "menaikkan kelas seluruh siswa dari {$kelas_asal_id} ke {$kelas_tujuan_id}",
+            'type' => 'success'
+        ]);
+
+        $this->dispatch('notify', message: 'Seluruh siswa berhasil naik kelas.', type: 'success');
+    }
 
     protected $updatesQueryString = ['search'];
 public function resetForm()
@@ -39,7 +77,7 @@ public function create()
 
     public function render()
     {
-        $query = Siswa::with(['user', 'kelas', 'jurusan']);
+        $query = Siswa::with(['user', 'kelas', 'jurusan'])->where('status', 'aktif');
 
         if (!empty($this->search)) {
             $query->where(function($q) {
@@ -49,12 +87,13 @@ public function create()
                   });
             });
         }
+
+        if (!empty($this->target_kelas_id)) {
+            $query->where('kelas_id', $this->target_kelas_id);
+        }
         
         $siswas = $query->latest()->paginate(10);
         
-        // Log the search term and count for debugging purposes
-        \Illuminate\Support\Facades\Log::info('Search Term: ' . $this->search . ' | Results Count: ' . $siswas->total());
-
         return view('livewire.siswa.index', [
             'siswas' => $siswas,
             'kelases' => Kelas::all(),
@@ -110,7 +149,7 @@ public function create()
             $user = User::create([
                 'name' => $this->name,
                 'email' => $this->email,
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Tr1Bhakt1'),
                 'role' => 'siswa',
             ]);
             Siswa::create([
@@ -188,7 +227,7 @@ public function create()
             $siswa = Siswa::find($this->siswa_id);
             if ($siswa) {
                 $user = User::find($siswa->user_id);
-                $user->update(['password' => Hash::make('password')]);
+                $user->update(['password' => Hash::make('Tr1Bhakt1')]);
 
                 ActivityLog::create([
                     'user_id' => auth()->id(),
@@ -196,7 +235,7 @@ public function create()
                     'type' => 'info'
                 ]);
 
-                $this->dispatch('notify', message: 'Password berhasil direset ke "password".', type: 'success');
+                $this->dispatch('notify', message: 'Password berhasil direset ke "Tr1Bhakt1".', type: 'success');
             }
         }
         $this->dispatch('close-modal', 'confirm-reset-password');
@@ -240,21 +279,47 @@ public function create()
                 continue;
             }
 
-            $user = User::create([
-                'name' => $row['nama_lengkap'],
-                'email' => $row['email'],
-                'password' => Hash::make('password'),
-                'role' => 'siswa',
-            ]);
+            \Illuminate\Support\Facades\Log::info("Memproses User: " . $row['email']);
 
-            $kelas = Kelas::where('nama_kelas', $row['kelas'])->first();
-            $jurusan = Jurusan::where('nama_jurusan', $row['jurusan'])->first();
+            try {
+                $user = User::create([
+                    'name' => $row['nama_lengkap'],
+                    'email' => $row['email'],
+                    'password' => Hash::make('Tr1Bhakt1'),
+                    'role' => 'siswa',
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Gagal membuat user untuk email: " . $row['email'] . ". Error: " . $e->getMessage());
+                $errors[] = "Baris " . ($index + 2) . ": Gagal membuat user: " . $e->getMessage();
+                $skipped++;
+                continue;
+            }
+
+            if (!$user instanceof \App\Models\User) {
+                \Illuminate\Support\Facades\Log::error("User bukan instance model untuk: " . $row['email']);
+                $errors[] = "Baris " . ($index + 2) . ": User bukan instance valid.";
+                $skipped++;
+                continue;
+            }
+
+            // ... [kode sebelumnya]
+            $namaKelas = trim($row['kelas']);
+            $namaJurusan = trim($row['jurusan']);
+            $kelas = Kelas::where('nama_kelas', $namaKelas)->first();
+            $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)->first();
+
+            if (!$kelas || !$jurusan) {
+                \Illuminate\Support\Facades\Log::error("Import Gagal: Data tidak ditemukan. NIS: {$row['nis']}, Kelas: '{$namaKelas}' (ID: " . ($kelas->id ?? 'null') . "), Jurusan: '{$namaJurusan}' (ID: " . ($jurusan->id ?? 'null') . ")");
+                $errors[] = "Baris " . ($index + 2) . ": Kelas atau Jurusan tidak ditemukan.";
+                $skipped++;
+                continue;
+            }
 
             Siswa::create([
                 'user_id' => $user->id,
                 'nis' => $row['nis'],
-                'kelas_id' => $kelas ? $kelas->id : Kelas::first()->id,
-                'jurusan_id' => $jurusan ? $jurusan->id : Jurusan::first()->id,
+                'kelas_id' => $kelas->id,
+                'jurusan_id' => $jurusan->id,
                 'jenis_kelamin' => in_array($row['jenis_kelamin'], ['L', 'P']) ? $row['jenis_kelamin'] : 'L',
             ]);
             $imported++;

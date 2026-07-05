@@ -133,7 +133,7 @@ class Index extends Component
             $guru = Guru::find($this->guru_id);
             if ($guru) {
                 $user = User::find($guru->user_id);
-                $user->update(['password' => Hash::make('password')]);
+                $user->update(['password' => Hash::make('Tr1Bhakt1')]);
 
                 ActivityLog::create([
                     'user_id' => auth()->id(),
@@ -141,7 +141,7 @@ class Index extends Component
                     'type' => 'info'
                 ]);
 
-                $this->dispatch('notify', message: 'Password berhasil direset ke "password".', type: 'success');
+                $this->dispatch('notify', message: 'Password berhasil direset ke "Tr1Bhakt1".', type: 'success');
             }
         }
         $this->dispatch('close-modal', 'confirm-reset-password');
