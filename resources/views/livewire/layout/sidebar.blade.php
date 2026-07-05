@@ -41,6 +41,7 @@ $logout = function (Logout $logout) {
             @if(auth()->user()->isAdmin())
                 <div x-show="sidebarOpen" class="px-4 py-2 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Manajemen Data</div>
                 <x-sidebar-link :href="route('siswa.index')" :active="request()->routeIs('siswa.index')" icon="users" title="Data Siswa" />
+                <x-sidebar-link :href="route('alumni.index')" :active="request()->routeIs('alumni.index')" icon="users" title="Data Alumni" />
                 <x-sidebar-link :href="route('guru.index')" :active="request()->routeIs('guru.index')" icon="user-group" title="Data Guru" />
                 
                 <div x-data="{ open: {{ request()->routeIs('jurusan.index') || request()->routeIs('kelas.index') ? 'true' : 'false' }} }">

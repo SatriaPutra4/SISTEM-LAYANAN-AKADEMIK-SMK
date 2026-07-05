@@ -69,14 +69,53 @@
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari berdasarkan nama atau NIS..." class="block w-full pl-10 pr-3 py-2.5 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 text-sm">
         </div>
         <div class="flex items-center space-x-2">
-            <select class="bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 text-sm py-2.5 px-4">
+            <select wire:model.live="target_kelas_id" class="bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 text-sm py-2.5 px-4">
                 <option value="">Semua Kelas</option>
                 @foreach($kelases as $k)
                     <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
                 @endforeach
             </select>
+            @if($target_kelas_id)
+                <button x-data x-on:click="$dispatch('open-modal', 'modal-luluskan')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm text-sm">
+                    Luluskan Angkatan
+                </button>
+                <button x-data x-on:click="$dispatch('open-modal', 'modal-naikkan-kelas')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm text-sm">
+                    Naikkan Kelas
+                </button>
+            @endif
         </div>
     </div>
+
+    <!-- Modals Aksi Massal -->
+    <x-modal name="modal-luluskan" focusable>
+        <div class="p-6">
+            <h2 class="text-lg font-bold text-gray-900">Konfirmasi Kelulusan Massal</h2>
+            <p class="mt-2 text-sm text-gray-600">Yakin ingin meluluskan seluruh siswa di kelas ini?</p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
+                <x-primary-button wire:click="luluskanAngkatan({{ $target_kelas_id ?? 0 }})" x-on:click="$dispatch('close')" class="bg-amber-600 hover:bg-amber-700">Ya, Luluskan</x-primary-button>
+            </div>
+        </div>
+    </x-modal>
+
+    <x-modal name="modal-naikkan-kelas" focusable>
+        <div class="p-6" x-data="{ tujuan_id: '' }">
+            <h2 class="text-lg font-bold text-gray-900">Konfirmasi Kenaikan Kelas</h2>
+            <div class="mt-4 space-y-2">
+                <label class="text-sm text-gray-600">Pilih kelas tujuan:</label>
+                <select x-model="tujuan_id" class="w-full rounded-lg border-gray-300">
+                    <option value="">Pilih Kelas</option>
+                    @foreach($kelases as $k)
+                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
+                <x-primary-button x-on:click="$wire.naikkanKelas({{ $target_kelas_id ?? 0 }}, tujuan_id); $dispatch('close')" class="bg-blue-600 hover:bg-blue-700">Naikkan Kelas</x-primary-button>
+            </div>
+        </div>
+    </x-modal>
 
     <!-- Table -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
