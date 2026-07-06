@@ -72,38 +72,42 @@
                             $status_color = $t->status === 'Lunas' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
                         ?>
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
-                        <td class="px-8 py-5">
-                            <span class="text-sm font-black text-gray-800 dark:text-white"><?php echo e($t->tahun_ajaran); ?></span>
-                        </td>
-                        <td class="px-8 py-5 text-right font-black text-gray-700 dark:text-gray-300">
-                            Rp <?php echo e(number_format($t->nominal, 0, ',', '.')); ?>
+                    <td class="px-8 py-5">
+                        <span class="text-sm font-black text-gray-800 dark:text-white"><?php echo e($t->tahun_ajaran); ?></span>
+                    </td>
+                    <td class="px-8 py-5 text-right font-black text-gray-700 dark:text-gray-300">
+                        Rp <?php echo e(number_format($t->nominal, 0, ',', '.')); ?>
 
-                        </td>
-                        <td class="px-8 py-5 text-right">
-                            <div class="font-black text-emerald-600">Rp <?php echo e(number_format($dibayar, 0, ',', '.')); ?></div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
-                                <div class="bg-emerald-500 h-1.5 rounded-full" style="width: <?php echo e($persen); ?>%"></div>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <div class="font-black text-emerald-600">Rp <?php echo e(number_format($dibayar, 0, ',', '.')); ?></div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+                            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: <?php echo e($persen); ?>%"></div>
+                        </div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $t->pembayaranSpps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                            <div class="text-[10px] text-gray-500 mt-1">
+                                <?php echo e($p->tanggal_bayar->format('d/m/Y H:i')); ?>: Rp <?php echo e(number_format($p->nominal_bayar, 0, ',', '.')); ?> (<?php echo e($p->status); ?>)
                             </div>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <span class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest <?php echo e($status_color); ?>">
-                                <?php echo e($t->status); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    </td>
+                    <td class="px-8 py-5 text-center">
+                        <span class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest <?php echo e($status_color); ?>">
+                            <?php echo e($t->status); ?>
 
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($t->status !== 'Lunas'): ?>
-                            <button wire:click="openModal(<?php echo e($t->id); ?>)" class="bg-primary-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-200 dark:shadow-none hover:bg-primary-700 transition-all">
-                                Bayar
-                            </button>
-                            <?php else: ?>
-                            <div class="flex flex-col items-center">
-                                <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Lunas</span>
-                            </div>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-center">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($t->status !== 'Lunas'): ?>
+                        <button wire:click="openModal(<?php echo e($t->id); ?>)" class="bg-primary-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-200 dark:shadow-none hover:bg-primary-700 transition-all">
+                            Bayar
+                        </button>
+                        <?php else: ?>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Lunas</span>
+                        </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </td>
+                    </tr>                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <tr>
                         <td colspan="4" class="px-8 py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Tidak ada data tagihan</td>
                     </tr>

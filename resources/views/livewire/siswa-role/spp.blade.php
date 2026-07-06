@@ -72,36 +72,40 @@
                             $status_color = $t->status === 'Lunas' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
                         @endphp
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
-                        <td class="px-8 py-5">
-                            <span class="text-sm font-black text-gray-800 dark:text-white">{{ $t->tahun_ajaran }}</span>
-                        </td>
-                        <td class="px-8 py-5 text-right font-black text-gray-700 dark:text-gray-300">
-                            Rp {{ number_format($t->nominal, 0, ',', '.') }}
-                        </td>
-                        <td class="px-8 py-5 text-right">
-                            <div class="font-black text-emerald-600">Rp {{ number_format($dibayar, 0, ',', '.') }}</div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
-                                <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $persen }}%"></div>
+                    <td class="px-8 py-5">
+                        <span class="text-sm font-black text-gray-800 dark:text-white">{{ $t->tahun_ajaran }}</span>
+                    </td>
+                    <td class="px-8 py-5 text-right font-black text-gray-700 dark:text-gray-300">
+                        Rp {{ number_format($t->nominal, 0, ',', '.') }}
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <div class="font-black text-emerald-600">Rp {{ number_format($dibayar, 0, ',', '.') }}</div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+                            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $persen }}%"></div>
+                        </div>
+                        @foreach($t->pembayaranSpps as $p)
+                            <div class="text-[10px] text-gray-500 mt-1">
+                                {{ $p->tanggal_bayar->format('d/m/Y H:i') }}: Rp {{ number_format($p->nominal_bayar, 0, ',', '.') }} ({{ $p->status }})
                             </div>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <span class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest {{ $status_color }}">
-                                {{ $t->status }}
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            @if($t->status !== 'Lunas')
-                            <button wire:click="openModal({{ $t->id }})" class="bg-primary-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-200 dark:shadow-none hover:bg-primary-700 transition-all">
-                                Bayar
-                            </button>
-                            @else
-                            <div class="flex flex-col items-center">
-                                <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Lunas</span>
-                            </div>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
+                        @endforeach
+                    </td>
+                    <td class="px-8 py-5 text-center">
+                        <span class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest {{ $status_color }}">
+                            {{ $t->status }}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-center">
+                        @if($t->status !== 'Lunas')
+                        <button wire:click="openModal({{ $t->id }})" class="bg-primary-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-200 dark:shadow-none hover:bg-primary-700 transition-all">
+                            Bayar
+                        </button>
+                        @else
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Lunas</span>
+                        </div>
+                        @endif
+                    </td>
+                    </tr>                    @empty
                     <tr>
                         <td colspan="4" class="px-8 py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Tidak ada data tagihan</td>
                     </tr>
