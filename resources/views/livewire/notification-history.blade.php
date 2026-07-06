@@ -7,7 +7,21 @@
         <button wire:click="markAllAsRead" class="px-4 py-2 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 font-medium text-sm transition-colors">
             Tandai semua dibaca
         </button>
+        <button x-on:click="$dispatch('open-modal', 'confirm-delete-all')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 font-medium text-sm transition-colors">
+            Hapus semua notifikasi
+        </button>
     </div>
+
+    <x-modal name="confirm-delete-all" maxWidth="md">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Hapus Semua Notifikasi?</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Apakah Anda yakin ingin menghapus seluruh riwayat notifikasi? Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="flex justify-end space-x-3">
+                <button x-on:click="$dispatch('close')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm">Batal</button>
+                <button wire:click="deleteAll" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </x-modal>
 
     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="divide-y divide-gray-100 dark:divide-gray-700">

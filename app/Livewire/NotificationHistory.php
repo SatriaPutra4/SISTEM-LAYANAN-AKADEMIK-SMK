@@ -9,6 +9,12 @@ class NotificationHistory extends Component
 {
     use WithPagination;
 
+    public function deleteAll()
+    {
+        auth()->user()->notifications()->delete();
+        $this->dispatch('close-modal', 'confirm-delete-all');
+    }
+    
     public function markAsRead($notificationId)
     {
         $notification = auth()->user()->notifications()->find($notificationId);
