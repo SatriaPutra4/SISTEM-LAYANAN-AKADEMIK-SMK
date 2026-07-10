@@ -188,7 +188,20 @@
 <?php unset($__componentOriginalf94ed9c5393ef72725d159fe01139746); ?>
 <?php endif; ?>
 
-                            <input type="number" wire:model="nominal_transfer" placeholder="Nominal Transfer" class="w-full p-3 rounded-xl border border-gray-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <div x-data="{ 
+                                formattedValue: '<?php echo e(number_format((int)($nominal_transfer ?? 0), 0, ',', '.')); ?>',
+                                format(val) {
+                                    let num = val.replace(/\D/g, '');
+                                    $wire.set('nominal_transfer', num);
+                                    this.formattedValue = num ? new Intl.NumberFormat('id-ID').format(num) : '';
+                                }
+                            }">
+                                <input type="text" 
+                                    x-model="formattedValue" 
+                                    @input="format($event.target.value)"
+                                    placeholder="Nominal Transfer" 
+                                    class="w-full p-3 rounded-xl border border-gray-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            </div>
                             <?php if (isset($component)) { $__componentOriginalf94ed9c5393ef72725d159fe01139746 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf94ed9c5393ef72725d159fe01139746 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-error','data' => ['messages' => $errors->get('nominal_transfer')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>

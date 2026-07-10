@@ -25,7 +25,7 @@
         <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" wire:click="$set('showImportModal', false)"></div>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 relative z-10 animate-fade-in">
             <h3 class="text-xl font-bold mb-2">Import Data Siswa</h3>
-            <p class="text-sm text-gray-500 mb-6">Pilih file CSV untuk melakukan import data masal.</p>
+            <p class="text-sm text-gray-500 mb-6">Pilih file CSV atau Excel (.xlsx) untuk melakukan import data masal (Maks 30MB).</p>
             
             <form wire:submit.prevent="import" class="space-y-4">
                 <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-emerald-500 transition-colors" x-data="{ fileName: 'Klik untuk pilih file' }">
@@ -39,7 +39,7 @@
                                 <svg class="w-10 h-10 text-emerald-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                             </template>
                             <span class="block text-sm font-semibold truncate max-w-[200px]" x-text="fileName"></span>
-                            <span class="block text-xs text-gray-400 mt-1">CSV (Maks 5MB)</span>
+                            <span class="block text-xs text-gray-400 mt-1">CSV/Excel (Maks 30MB)</span>
                         </div>
                     </label>
                 </div>

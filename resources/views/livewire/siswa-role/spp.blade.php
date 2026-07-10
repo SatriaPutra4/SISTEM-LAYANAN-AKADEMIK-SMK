@@ -164,7 +164,20 @@
                             </div>
                             <x-input-error :messages="$errors->get('bukti_pembayaran')" />
 
-                            <input type="number" wire:model="nominal_transfer" placeholder="Nominal Transfer" class="w-full p-3 rounded-xl border border-gray-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <div x-data="{ 
+                                formattedValue: '{{ number_format((int)($nominal_transfer ?? 0), 0, ',', '.') }}',
+                                format(val) {
+                                    let num = val.replace(/\D/g, '');
+                                    $wire.set('nominal_transfer', num);
+                                    this.formattedValue = num ? new Intl.NumberFormat('id-ID').format(num) : '';
+                                }
+                            }">
+                                <input type="text" 
+                                    x-model="formattedValue" 
+                                    @input="format($event.target.value)"
+                                    placeholder="Nominal Transfer" 
+                                    class="w-full p-3 rounded-xl border border-gray-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            </div>
                             <x-input-error :messages="$errors->get('nominal_transfer')" />
 
                             <input type="datetime-local" wire:model="tanggal_transfer" class="w-full p-3 rounded-xl border border-gray-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white">

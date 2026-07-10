@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" x-data="{ sidebarOpen: true }">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" 
+      x-data="{ sidebarOpen: window.innerWidth >= 1024 }" 
+      @resize.window="sidebarOpen = window.innerWidth >= 1024">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">

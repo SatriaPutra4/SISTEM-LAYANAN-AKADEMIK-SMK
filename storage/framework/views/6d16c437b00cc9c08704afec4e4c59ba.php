@@ -4,10 +4,16 @@
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Tagihan & Pembayaran SPP</h2>
             <p class="text-sm text-gray-500 mt-1">Kelola tagihan bulanan dan verifikasi pembayaran siswa</p>
         </div>
-        <button x-on:click="$dispatch('open-modal', 'modal-tagihan')" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-            Buat Tagihan
-        </button>
+        <div class="flex gap-2">
+            <button wire:click="export" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Export Excel
+            </button>
+            <button x-on:click="$dispatch('open-modal', 'modal-tagihan')" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                Buat Tagihan
+            </button>
+        </div>
     </div>
 
     <!-- Filter Card -->
@@ -157,7 +163,20 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nominal (Rp)</label>
-                <input wire:model="nominal" type="number" class="w-full rounded-xl border-gray-200 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                <div x-data="{ 
+                    formattedValue: '<?php echo e(number_format($nominal ?? 0, 0, ',', '.')); ?>',
+                    format(val) {
+                        let num = val.replace(/\D/g, '');
+                        $wire.set('nominal', num);
+                        this.formattedValue = new Intl.NumberFormat('id-ID').format(num);
+                    }
+                }">
+                    <input type="text" 
+                        x-model="formattedValue" 
+                        @input="format($event.target.value)"
+                        class="w-full rounded-xl border-gray-200 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                        placeholder="Contoh: 100.000">
+                </div>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nominal'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

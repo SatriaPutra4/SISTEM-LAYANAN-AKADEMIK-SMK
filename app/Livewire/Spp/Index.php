@@ -8,8 +8,9 @@ use App\Models\Kelas;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
-
 use App\Models\ActivityLog;
+use App\Exports\SppExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Index extends Component
 {
@@ -35,7 +36,15 @@ class Index extends Component
             });
 
         if ($this->filterStatus) {
-            $query->where('status', $this->filterStatus);
+            if ($this->filterStatus === 'Menunggu Verifikasi') {
+                $query->whereHas('pembayaranSpps', function($q) {
+                    $q->where('status', 'Menunggu Verifikasi');
+                });
+            } elseif ($this->filterStatus === 'Belum Bayar') {
+                $query->where('status', 'Belum Lunas');
+            } else {
+                $query->where('status', $this->filterStatus);
+            }
         }
 
         if ($this->filterKelas) {
@@ -49,6 +58,17 @@ class Index extends Component
             'siswas' => Siswa::with('user')->get(),
             'kelases' => Kelas::all(),
         ])->layout('layouts.app');
+    }
+
+    public function export()
+    {
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'description' => "mengekspor data tagihan SPP ke Excel",
+            'type' => 'info'
+        ]);
+
+        return Excel::download(new SppExport, 'data-spp-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     public function createTagihan()

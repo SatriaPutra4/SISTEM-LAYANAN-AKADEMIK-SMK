@@ -6,12 +6,13 @@ use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\Jurusan;
 use App\Models\User;
+use App\Models\ActivityLog;
+use App\Imports\SiswaImport;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
-use App\Models\ActivityLog;
-
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Index extends Component
 {
@@ -64,16 +65,17 @@ class Index extends Component
     }
 
     protected $updatesQueryString = ['search'];
-public function resetForm()
-{
-    $this->reset(['name', 'email', 'nis', 'kelas_id', 'jurusan_id', 'jenis_kelamin', 'no_hp', 'alamat', 'foto', 'siswa_id', 'isEdit']);
-}
+    
+    public function resetForm()
+    {
+        $this->reset(['name', 'email', 'nis', 'kelas_id', 'jurusan_id', 'jenis_kelamin', 'no_hp', 'alamat', 'foto', 'siswa_id', 'isEdit']);
+    }
 
-public function create()
-{
-    $this->resetForm();
-    $this->dispatch('open-modal', 'modal-siswa');
-}
+    public function create()
+    {
+        $this->resetForm();
+        $this->dispatch('open-modal', 'modal-siswa');
+    }
 
     public function render()
     {
@@ -220,7 +222,6 @@ public function create()
         $this->dispatch('close-modal', 'confirm-siswa-deletion');
     }
 
-
     public function resetPasswordConfirmed()
     {
         if ($this->siswa_id) {
@@ -243,97 +244,23 @@ public function create()
 
     public function import()
     {
-        $this->validate(['file' => 'required|mimes:csv,txt|max:5120']);
+        $this->validate(['file' => 'required|mimes:csv,txt,xlsx,xls|max:30720']);
 
-        $path = $this->file->getRealPath();
-        $data = array_map('str_getcsv', file($path));
-        $header = array_shift($data);
-
-        // Validasi header
-        $requiredHeaders = ['nama_lengkap', 'email', 'nis', 'kelas', 'jurusan', 'jenis_kelamin'];
-        foreach ($requiredHeaders as $h) {
-            if (!in_array($h, $header)) {
-                $this->dispatch('notify', message: "Format file salah: kolom '{$h}' tidak ditemukan.", type: 'error');
-                return;
-            }
-        }
-
-        $skipped = 0;
-        $imported = 0;
-        $errors = [];
-
-        foreach ($data as $index => $row) {
-            if (count($row) !== count($header)) continue;
-            $row = array_combine($header, $row);
+        try {
+            Excel::import(new SiswaImport, $this->file);
             
-            // Validasi data baris
-            if (empty($row['email']) || empty($row['nama_lengkap']) || empty($row['nis'])) {
-                $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap.";
-                $skipped++;
-                continue;
-            }
-
-            // Cek apakah email sudah ada
-            if (User::where('email', $row['email'])->exists()) {
-                $skipped++;
-                continue;
-            }
-
-            \Illuminate\Support\Facades\Log::info("Memproses User: " . $row['email']);
-
-            try {
-                $user = User::create([
-                    'name' => $row['nama_lengkap'],
-                    'email' => $row['email'],
-                    'password' => Hash::make('Tr1Bhakt1'),
-                    'role' => 'siswa',
-                ]);
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Gagal membuat user untuk email: " . $row['email'] . ". Error: " . $e->getMessage());
-                $errors[] = "Baris " . ($index + 2) . ": Gagal membuat user: " . $e->getMessage();
-                $skipped++;
-                continue;
-            }
-
-            if (!$user instanceof \App\Models\User) {
-                \Illuminate\Support\Facades\Log::error("User bukan instance model untuk: " . $row['email']);
-                $errors[] = "Baris " . ($index + 2) . ": User bukan instance valid.";
-                $skipped++;
-                continue;
-            }
-
-            // ... [kode sebelumnya]
-            $namaKelas = trim($row['kelas']);
-            $namaJurusan = trim($row['jurusan']);
-            $kelas = Kelas::where('nama_kelas', $namaKelas)->first();
-            $jurusan = Jurusan::where('nama_jurusan', $namaJurusan)->first();
-
-            if (!$kelas || !$jurusan) {
-                \Illuminate\Support\Facades\Log::error("Import Gagal: Data tidak ditemukan. NIS: {$row['nis']}, Kelas: '{$namaKelas}' (ID: " . ($kelas->id ?? 'null') . "), Jurusan: '{$namaJurusan}' (ID: " . ($jurusan->id ?? 'null') . ")");
-                $errors[] = "Baris " . ($index + 2) . ": Kelas atau Jurusan tidak ditemukan.";
-                $skipped++;
-                continue;
-            }
-
-            Siswa::create([
-                'user_id' => $user->id,
-                'nis' => $row['nis'],
-                'kelas_id' => $kelas->id,
-                'jurusan_id' => $jurusan->id,
-                'jenis_kelamin' => in_array($row['jenis_kelamin'], ['L', 'P']) ? $row['jenis_kelamin'] : 'L',
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'description' => "mengimport data siswa masal (via Excel/CSV)",
+                'type' => 'success'
             ]);
-            $imported++;
-        }
-        
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'description' => "mengimport data siswa masal ({$imported} berhasil, {$skipped} dilewati)",
-            'type' => 'success'
-        ]);
 
-        $this->showImportModal = false;
-        $this->file = null;
-        $this->dispatch('notify', message: "Import selesai: {$imported} siswa berhasil, {$skipped} data dilewati.", type: 'success');
+            $this->showImportModal = false;
+            $this->file = null;
+            $this->dispatch('notify', message: "Import data berhasil.", type: 'success');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Import Gagal: " . $e->getMessage());
+            $this->dispatch('notify', message: "Terjadi kesalahan saat import: " . $e->getMessage(), type: 'error');
+        }
     }
 }
-

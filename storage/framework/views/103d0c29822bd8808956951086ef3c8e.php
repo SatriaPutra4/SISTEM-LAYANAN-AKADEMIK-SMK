@@ -4,7 +4,7 @@ use App\Livewire\Actions\Logout;
 
 ?>
 
-<div :class="sidebarOpen ? 'w-64' : 'w-24'" class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 transform bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 lg:static lg:inset-0 lg:translate-x-0">
+<div :class="sidebarOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'" class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 lg:static lg:inset-0" @click.away="if(window.innerWidth < 1024) sidebarOpen = false">
     <div class="flex items-center justify-between px-4 h-20 bg-primary-700">
         <div class="flex items-center space-x-3">
             <a href="<?php echo e(route('dashboard')); ?>" class="flex items-center space-x-3" wire:navigate>
