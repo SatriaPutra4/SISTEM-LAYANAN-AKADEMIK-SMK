@@ -30,7 +30,7 @@ class SuratPengajuanNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     public function toDatabase($notifiable)
@@ -49,9 +49,14 @@ class SuratPengajuanNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject('Pengajuan Surat Baru')
+            ->greeting('Halo Admin,')
+            ->line('Terdapat pengajuan surat baru dari siswa.')
+            ->line('Nama Siswa: ' . $this->siswa->user->name)
+            ->line('Jenis Surat: ' . $this->surat->jenis_surat)
+            ->line('Tanggal Pengajuan: ' . $this->surat->created_at->format('d-m-Y H:i'))
+            ->line('Silakan melakukan pengecekan melalui sistem.')
+            ->action('Lihat Pengajuan', route('surat.admin'));
     }
 
     /**

@@ -56,3 +56,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('profil', \App\Livewire\Admin\Profil::class)->name('admin-profil')->middleware('role:admin');
 
 require __DIR__.'/auth.php';
+
+Route::get('/test-email', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::raw('Tes SMTP Gmail ke Siswa - Berhasil!', function ($message) {
+            $message->to('satriaputraardyb@gmail.com')->subject('Testing SMTP Siswa');
+        });
+        return "Email terkirim ke siswa!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+

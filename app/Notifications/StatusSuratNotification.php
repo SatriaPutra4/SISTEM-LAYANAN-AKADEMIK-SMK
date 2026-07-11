@@ -32,7 +32,7 @@ class StatusSuratNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     public function toDatabase($notifiable)
@@ -45,6 +45,23 @@ class StatusSuratNotification extends Notification
             'message' => "Pengajuan {$this->surat->jenis_surat} Anda telah {$this->status}." . ($this->keterangan ? " Catatan: {$this->keterangan}" : ""),
             'url' => route('siswa-role.surat'),
         ];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable): MailMessage
+    {
+        $nama_siswa = $this->surat->siswa->user->name;
+
+        return (new MailMessage)
+            ->subject('Update Status Pengajuan Surat')
+            ->greeting("Halo {$nama_siswa},")
+            ->line('Pengajuan surat Anda telah diperbarui.')
+            ->line('Jenis Surat: ' . $this->surat->jenis_surat)
+            ->line('Status: ' . $this->status)
+            ->line('Silakan login ke sistem untuk melihat detail.')
+            ->action('Lihat Detail', route('siswa-role.surat'));
     }
 
     /**
