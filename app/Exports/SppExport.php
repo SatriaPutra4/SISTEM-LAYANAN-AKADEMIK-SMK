@@ -11,7 +11,7 @@ class SppExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return TagihanSpp::with(['siswa.user', 'siswa.kelas'])->get();
+        return TagihanSpp::with(['siswa.user', 'siswa.kelas', 'pembayaranSpps'])->get();
     }
 
     public function headings(): array
@@ -22,19 +22,23 @@ class SppExport implements FromCollection, WithHeadings, WithMapping
             'Tahun Ajaran',
             'Nominal',
             'Status',
-            'Tanggal Pembayaran',
+            'Tanggal Pembayaran Terakhir',
         ];
     }
 
     public function map($tagihan): array
     {
+        // Ambil tanggal pembayaran terakhir yang statusnya disetujui (atau semua)
+        $latestPayment = $tagihan->pembayaranSpps->sortByDesc('tanggal_bayar')->first();
+        $tanggal = $latestPayment ? $latestPayment->tanggal_bayar->format('d/m/Y H:i') : '-';
+
         return [
             $tagihan->siswa->user->name,
             $tagihan->siswa->kelas->nama_kelas ?? '-',
             $tagihan->tahun_ajaran,
             $tagihan->nominal,
             $tagihan->status,
-            $tagihan->tanggal_pembayaran ?? '-',
+            $tanggal,
         ];
     }
 }
